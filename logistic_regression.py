@@ -21,7 +21,6 @@ def logistic_regression(x_train: np.ndarray, y_train: np.ndarray, x_test: np.nda
 
     linear_pred = np.dot(x_test_bias, weights)
     y_prob = 1 / (1 + np.exp(-linear_pred))
-    
     y_pred = (y_prob >= 0.5).astype(int)
 
     return y_pred
