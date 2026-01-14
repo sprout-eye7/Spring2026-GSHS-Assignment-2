@@ -1,27 +1,40 @@
 import numpy as np
 
 def logistic_regression(x_train: np.ndarray, y_train: np.ndarray, x_test: np.ndarray) -> np.ndarray:
-    learning_rate = 0.1
-    iterations = 2000
+    x_train = np.asarray(x_train, dtype=float)
+    y_train = np.asarray(y_train, dtype=float).reshape(-1)
+    x_test = np.asarray(x_test, dtype=float)
 
-    m_train = x_train.shape[0]
-    x_train_bias = np.hstack([np.ones((m_train, 1)), x_train])
-    
-    m_test = x_test.shape[0]
-    x_test_bias = np.hstack([np.ones((m_test, 1)), x_test])
+    if x_train.ndim != 2 or x_train.shape[1] != 2:
+        raise ValueError("x_train must have shape (n_samples, 2)")
+    if x_test.ndim != 2 or x_test.shape[1] != 2:
+        raise ValueError("x_test must have shape (n_samples, 2)")
+    if y_train.shape[0] != x_train.shape[0]:
+        raise ValueError("y_train length must match x_train samples")
 
-    weights = np.zeros(x_train_bias.shape[1])
+    mu = x_train.mean(axis=0)
+    sigma = x_train.std(axis=0)
+    sigma[sigma == 0] = 1.0
 
-    for _ in range(iterations):
-        linear_model = np.dot(x_train_bias, weights)
-        y_predicted = 1 / (1 + np.exp(-linear_model))
-        
-        gradient = np.dot(x_train_bias.T, (y_predicted - y_train)) / m_train
-        weights -= learning_rate * gradient
+    X = (x_train - mu) / sigma
+    Xt = (x_test - mu) / sigma
 
-    linear_pred = np.dot(x_test_bias, weights)
-    y_prob = 1 / (1 + np.exp(-linear_pred))
-    y_pred = (y_prob >= 0.5).astype(int)
+    Xb = np.c_[np.ones((X.shape[0], 1)), X]
+    Xtb = np.c_[np.ones((Xt.shape[0], 1)), Xt]
 
-    return y_pred
+    w = np.zeros(Xb.shape[1], dtype=float)
+
+    lr = 0.1
+    iters = 2000
+
+    for _ in range(iters):
+        z = Xb @ w
+        p = 1.0 / (1.0 + np.exp(-np.clip(z, -50, 50)))
+        grad = (Xb.T @ (p - y_train)) / Xb.shape[0]
+        w -= lr * grad
+
+    zt = Xtb @ w
+    pt = 1.0 / (1.0 + np.exp(-np.clip(zt, -50, 50)))
+    return (pt >= 0.5).astype(int)
     pass
+
