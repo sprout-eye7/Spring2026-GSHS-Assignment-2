@@ -1,18 +1,28 @@
 import numpy as np
 
 def logistic_regression(x_train: np.ndarray, y_train: np.ndarray, x_test: np.ndarray) -> np.ndarray:
-    '''
-    Implements the logistic regression algorithm.
+    learning_rate = 0.1
+    iterations = 2000
 
-    Parameters:
-        - x_train: Training features of shape (n_samples, 2).
-                    For this assignment, each training sample has two features: [feature1, feature2]
-        - y_train: Training labels (0/1)
-                    All the predictions will be binary (0 or 1), since it is Logistic Regression.
-        - x_test: Test features of shape (n_samples, 2).
+    m_train = x_train.shape[0]
+    x_train_bias = np.hstack([np.ones((m_train, 1)), x_train])
+    
+    m_test = x_test.shape[0]
+    x_test_bias = np.hstack([np.ones((m_test, 1)), x_test])
 
-    Returns:
-        y_pred: Predicted labels for the test set
-    '''
-    # Your code here
+    weights = np.zeros(x_train_bias.shape[1])
+
+    for _ in range(iterations):
+        linear_model = np.dot(x_train_bias, weights)
+        y_predicted = 1 / (1 + np.exp(-linear_model))
+        
+        gradient = np.dot(x_train_bias.T, (y_predicted - y_train)) / m_train
+        weights -= learning_rate * gradient
+
+    linear_pred = np.dot(x_test_bias, weights)
+    y_prob = 1 / (1 + np.exp(-linear_pred))
+    
+    y_pred = (y_prob >= 0.5).astype(int)
+
+    return y_pred
     pass
