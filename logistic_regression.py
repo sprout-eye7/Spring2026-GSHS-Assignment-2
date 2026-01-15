@@ -10,7 +10,6 @@ def logistic_regression(x_train: np.ndarray, y_train: np.ndarray, x_test: np.nda
     x_train_bias = np.hstack([np.ones((m_train, 1)), x_train])
     x_test_bias = np.hstack([np.ones((m_test, 1)), x_test])
     weights = np.zeros((x_train_bias.shape[1], 1))
-
     for _ in range(iterations):
         linear_model = np.dot(x_train_bias, weights)
         y_predicted = 1 / (1 + np.exp(-linear_model))
